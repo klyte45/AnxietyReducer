@@ -1,23 +1,17 @@
-﻿using ColossalFramework;
-using ColossalFramework.Globalization;
-using ColossalFramework.Math;
-using ColossalFramework.Plugins;
-using ColossalFramework.UI;
-using Harmony;
-using ICities;
-using Klyte.AnxietyReducer.Utils;
+﻿using Harmony;
+using Klyte.AnxietyReducer.Data;
+using Klyte.Commons.Extensors;
+using Klyte.Commons.Utils;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using UnityEngine;
 
 namespace Klyte.AnxietyReducer.Overrides
 {
 
-    public class AnxietyReducerOverrides : Redirector<AnxietyReducerOverrides>
+    public class AnxietyReducerOverrides : Redirector, IRedirectable
     {
 
         private static List<Tuple<Type, string>> methodsToDetour = new List<Tuple<Type, string>>
@@ -61,14 +55,14 @@ namespace Klyte.AnxietyReducer.Overrides
             Tuple.New(typeof(WildlifeAI),   "SimulationStep"                  ),
         };
 
-        public override void AwakeBody()
+        public void Awake()
         {
-            var trp2 = GetType().GetMethod("DetourCounter", allFlags);
-            foreach (var tuple in methodsToDetour)
+            MethodInfo trp2 = GetType().GetMethod("DetourCounter", RedirectorUtils.allFlags);
+            foreach (Tuple<Type, string> tuple in methodsToDetour)
             {
-                foreach (var src2 in tuple.First.GetMethods(allFlags).Where(x => x.Name == tuple.Second))
+                foreach (MethodInfo src2 in tuple.First.GetMethods(RedirectorUtils.allFlags).Where(x => x.Name == tuple.Second))
                 {
-                    doLog($"TRANSPILE AnxietyReducer Method: {src2} => {trp2}");
+                    LogUtils.DoLog($"TRANSPILE AnxietyReducer Method: {src2} => {trp2}");
                     AddRedirect(src2, null, null, trp2);
                 }
             }
@@ -77,7 +71,7 @@ namespace Klyte.AnxietyReducer.Overrides
 
         public static byte GetValueForCounter(ref byte waitCounter)
         {
-            if (SimulationManager.instance.m_currentFrameIndex % AnxietyReducerMod.multiplier == 0)
+            if (AnxietyData.Instance.WillDo(SimulationManager.instance.m_currentFrameIndex))
             {
                 return (byte)(waitCounter + 1);
             }
@@ -86,7 +80,7 @@ namespace Klyte.AnxietyReducer.Overrides
 
         public static byte GetValueForCounterIncreaser(ref byte waitCounter)
         {
-            if (SimulationManager.instance.m_referenceFrameIndex % AnxietyReducerMod.multiplier == 0)
+            if (AnxietyData.Instance.WillDo(SimulationManager.instance.m_referenceFrameIndex))
             {
                 waitCounter++;
             }
@@ -97,9 +91,11 @@ namespace Klyte.AnxietyReducer.Overrides
         private static MethodInfo notIncreaser = typeof(AnxietyReducerOverrides).GetMethod("GetValueForCounter");
         private static MethodInfo increaser = typeof(AnxietyReducerOverrides).GetMethod("GetValueForCounterIncreaser");
 
+        public Redirector RedirectorInstance => this;
+
         private static IEnumerable<CodeInstruction> DetourCounter(IEnumerable<CodeInstruction> instr)
         {
-            List<CodeInstruction> instrList = new List<CodeInstruction>(instr);
+            var instrList = new List<CodeInstruction>(instr);
             for (int i = 0; i < instrList.Count() - 2; i++)
             {
                 if (instrList[i].opcode == OpCodes.Ldfld && instrList[i].operand == waitField
@@ -127,15 +123,6 @@ namespace Klyte.AnxietyReducer.Overrides
         }
 
 
-        public override void doLog(string text, params object[] param)
-        {
-            doLog2(text, param);
-        }
-
-        public static void doLog2(string text, params object[] param)
-        {
-            Console.WriteLine($"AnxietyReducer v{AnxietyReducerMod.version}: {text}", param);
-        }
 
     }
 

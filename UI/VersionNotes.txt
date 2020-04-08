@@ -1,0 +1,4 @@
+﻿<color #AA44FF>ARv2.0</color>
+	- <color #FFFF00>New UI in game screen</color> at <sprite K45_K45Button> button.
+	- The anxiety scale is now linear (from 0% (disabled) to  99.25%)
+	- Per-savegame configuration
