@@ -98,8 +98,7 @@ namespace Klyte.AnxietyReducer.Overrides
             var instrList = new List<CodeInstruction>(instr);
             for (int i = 0; i < instrList.Count() - 2; i++)
             {
-                if (instrList[i].opcode == OpCodes.Ldfld && instrList[i].operand == waitField
-                    && instrList[i + 1].opcode == OpCodes.Ldc_I4_1 && instrList[i + 2].opcode == OpCodes.Add)
+                if (instrList[i].opcode == OpCodes.Ldfld && instrList[i].operand == waitField && instrList[i + 1].opcode == OpCodes.Ldc_I4_1 && instrList[i + 2].opcode == OpCodes.Add)
                 {
                     instrList[i].opcode = OpCodes.Ldflda;
                     instrList[i + 1] = new CodeInstruction(OpCodes.Call, notIncreaser);

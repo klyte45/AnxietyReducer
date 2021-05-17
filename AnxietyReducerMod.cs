@@ -1,7 +1,7 @@
 using Klyte.Commons.Interfaces;
 using System.Reflection;
 
-[assembly: AssemblyVersion("2.0.0.0")]
+[assembly: AssemblyVersion("2.0.0.2")]
 namespace Klyte.AnxietyReducer
 {
     public class AnxietyReducerMod : BasicIUserMod<AnxietyReducerMod, ARController, ARPanel>

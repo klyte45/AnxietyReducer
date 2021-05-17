@@ -2,3 +2,5 @@
 	- <color #FFFF00>New UI in game screen</color> at <sprite K45_K45Button> button.
 	- The anxiety scale is now linear (from 0% (disabled) to  99.25%)
 	- Per-savegame configuration
+	
+<color yellow>r2 (17/MAY/21):</color> Fixing garbled text issues when loading the city.
